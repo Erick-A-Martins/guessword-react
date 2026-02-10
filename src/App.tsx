@@ -8,6 +8,8 @@ import { LettersUsed, type LettersUsedProps } from "./components/LettersUsed";
 import { Input } from "./components/Input";
 import { useEffect, useState } from "react";
 
+const ATTEMPTS_MARGIN = 5;
+
 export default function App(){
     const [score, setScore] = useState(0);
     const [letter, setLetter] = useState("");
@@ -59,9 +61,32 @@ export default function App(){
         setLetter("");
     }
 
+    function endGame(message: string) {
+       alert(message);
+       startGame(); 
+    }
+
     useEffect(() => {
         startGame()
     }, [])
+
+    useEffect(() => {
+        if(!challenge) {
+            return;
+        }
+
+        setTimeout(() => {
+            if(score === challenge.word.length) {
+                return endGame("Parabéns, você descobriu a palavra!");
+            }
+
+            const attemptLimit = challenge.word.length + ATTEMPTS_MARGIN;
+            
+            if(lettersUsed.length === attemptLimit) {
+                return endGame("Que pena, você usou todas as tentativas!");
+            }
+        }, 200);
+    }, [score, lettersUsed.length]);
 
     if(!challenge){
         return;
@@ -70,7 +95,11 @@ export default function App(){
     return (
         <div className={styles.container}>
             <main>
-                <Header current={score} max={10} onRestart={handleRestartGame} />
+                <Header 
+                    current={lettersUsed.length} 
+                    max={challenge.word.length + ATTEMPTS_MARGIN} 
+                    onRestart={handleRestartGame} 
+                />
                 
                 <Tip tip={challenge.tip} />
 
