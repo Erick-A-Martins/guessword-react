@@ -1,29 +1,51 @@
+import styles from "./app.module.css";
+import { WORDS, type Challenge } from "./utils/words";
 import { Header } from "./components/Header";
 import { Tip } from "./components/Tip";
 import { Letter } from "./components/Letter";
 import { Button } from "./components/Button";
-import { LettersUsed } from "./components/LettersUsed";
-import { Input } from "./components/Input";import styles from "./app.module.css";
+import { LettersUsed, type LettersUsedProps } from "./components/LettersUsed";
+import { Input } from "./components/Input";
+import { useEffect, useState } from "react";
 
 export default function App(){
+    const [letter, setLetter] = useState("");
+    const [attempts, setAttempts] = useState(0);
+    const [lettersUsed, setLetterUsed] = useState<LettersUsedProps[]>([]);
+    const [challenge, setChallenge] = useState<Challenge | null>(null);
 
     function handleRestartGame(){
         alert("Reiniciar o jogo!");
     }
 
+    function startGame(){
+        const index = Math.floor(Math.random() * WORDS.length);
+        const randomWord = WORDS[index];
+        
+        setChallenge(randomWord);
+        setAttempts(0);
+        setLetter("");
+    }
+
+    useEffect(() => {
+        startGame()
+    }, [])
+
+    if(!challenge){
+        return;
+    }
+
     return (
         <div className={styles.container}>
             <main>
-                <Header current={5} max={10} onRestart={handleRestartGame} />
+                <Header current={attempts} max={10} onRestart={handleRestartGame} />
                 
                 <Tip tip="Uma das linguagens de programação mais utilizadas" />
 
                 <div className={styles.word}>
-                    <Letter value="R" />
-                    <Letter value="E" />
-                    <Letter value="A" />
-                    <Letter value="C" />
-                    <Letter value="T" />
+                    {challenge.word.split("").map((letter) => (
+                            <Letter value={letter} />
+                    ))}
                 </div>
 
                 <h4>Palpite</h4>
@@ -33,7 +55,7 @@ export default function App(){
                     <Button title="Confirmar" />
                 </div>
 
-                <LettersUsed />
+                <LettersUsed data={lettersUsed} />
             </main>
         </div>
     )
